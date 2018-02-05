@@ -6,7 +6,67 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+    // Handle Responses
+    const handleResponse = (xhr, h1, p) => {
+      
+      const content = document.querySelector('#content');
+      
+      const type = xhr.getResponseHeader('content-type');
 
+      if(type === 'application/json'){
+        const obj = JSON.parse(xhr.response);
+        
+        h1.textContent = `${obj.id}`;
+        p.textContent = `Message: ${obj.message}`;
+        
+        console.dir(obj);
+      } 
+      else if(type ==='text/xml'){
+        const id = xhr.responseXML.querySelector('id').textContent;
+        const message = xhr.responseXML.querySelector('message').textContent;
+        
+        h1.textContent = `${id}`;
+        p.textContent = `Message: ${message}`;
+        //console.dir(xhr.responseText);
+        console.dir(xhr.response);
+      }
+    }
+    
+    // Send Ajax
+    const sendAjax = (url, acceptedType, h1, p) => {
+      const xhr = new XMLHttpRequest();
+      
+      xhr.open('GET', url);
+      
+      xhr.setRequestHeader('Accept', acceptedType)
+      
+      xhr.onload = () => handleResponse(xhr, h1, p);
+      
+      xhr.send();
+    }
+    
+    // Main loop
+    const init = () => {
+      const sendButton = document.querySelector('#send');
+
+      const h1 = document.createElement('h1');
+      const p = document.createElement('p');
+      
+      content.appendChild(h1);
+      content.appendChild(p);
+      
+      // Click Event Function
+      const checkValues = () => {
+        const statusType = document.querySelector('#page').value;
+        const responseType = document.querySelector('#type').value;
+                      
+        sendAjax(statusType, responseType, h1, p);
+      }
+      
+      sendButton.addEventListener('click', checkValues);
+    }
+
+    window.onload = init;
   </script>
 </head>
 <body>
